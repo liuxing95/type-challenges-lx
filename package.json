@@ -1,0 +1,26 @@
+{
+  "name": "type-challenges-lx",
+  "version": "1.0.0",
+  "description": "该项目 fork 自 https://github.com/type-challenges/type-challenges/blob/master/README.zh-CN.md",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liuxing95/type-challenges-lx.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/liuxing95/type-challenges-lx/issues"
+  },
+  "homepage": "https://github.com/liuxing95/type-challenges-lx#readme",
+  "devDependencies": {
+    "@type-challenges/utils": "^0.1.1"
+  },
+  "dependencies": {
+    "typescript": "^4.5.4"
+  }
+}
