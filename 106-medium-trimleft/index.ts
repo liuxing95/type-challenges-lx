@@ -19,9 +19,9 @@
 
 /* _____________ 你的代码 _____________ */
 
-type gap = ' ' | '\n' | '\t'
+type Gap = ' ' | '\n' | '\t'
 
-type TrimLeft<S extends string> = S extends `${infer First}${infer U}` ? First extends gap ? TrimLeft<U> : S  : S
+type TrimLeft<S extends string> = S extends `${Gap}${infer U}` ? TrimLeft<U> : S
 
 /* _____________ 测试用例 _____________ */
 import { Equal, Expect } from '@type-challenges/utils'
