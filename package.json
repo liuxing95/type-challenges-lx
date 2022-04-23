@@ -17,10 +17,9 @@
     "url": "https://github.com/liuxing95/type-challenges-lx/issues"
   },
   "homepage": "https://github.com/liuxing95/type-challenges-lx#readme",
-  "devDependencies": {
-    "@type-challenges/utils": "^0.1.1"
-  },
+  "devDependencies": {},
   "dependencies": {
+    "@type-challenges/utils": "^0.1.1",
     "typescript": "^4.5.4"
   }
 }
