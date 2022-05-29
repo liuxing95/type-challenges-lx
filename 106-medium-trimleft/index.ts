@@ -21,7 +21,7 @@
 
 type Gap = ' ' | '\n' | '\t'
 
-type TrimLeft<S extends string> = S extends `${Gap}${infer U}` ? TrimLeft<U> : S
+type TrimLeft<S extends string> = S extends `${Gap}${ U}` ? TrimLeft<U> : S
 
 /* _____________ 测试用例 _____________ */
 import { Equal, Expect } from '@type-challenges/utils'
