@@ -37,15 +37,15 @@
 type Gap = '.'
 
 type Get<T extends Record<string, unknown>, K extends string> = K extends `${infer First}${Gap}${infer Rest}`
-? [T[First]] extends [never] ? never :  Get<T[First], Rest>
-: T[K]
+? First extends keyof T ?  Get<T[First], Rest> : never
+: K extends keyof T ? T[K] : never
 
 type T = Data['hello']
-type T1 = Data['foo']['bar']['count']
+type T1 = Data['no']
 
 
 type X = Get<Data, 'hello'>
-type X1 = Get<Data, 'foo.bar.count'>
+type X1 = Get<Data, 'no.existed'>
 
 
 /* _____________ Test Cases _____________ */
