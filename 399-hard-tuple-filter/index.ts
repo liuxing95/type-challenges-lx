@@ -19,14 +19,14 @@
 /* _____________ Your Code Here _____________ */
 
 type FilterOut<T extends any[], F, R extends any[] = []> = T extends [infer First, ...infer Rest]
-? Equal<First, F> extends true
+? [First] extends [F]
   ? FilterOut<Rest, F, R>
   : FilterOut<Rest, F, [...R, First]>
 : R
 
 type X = FilterOut<[never, 1, 'a', undefined, false, null], never | null | undefined>
 
-type X1 = [undefined] extends [never | null | undefined] ? true : false
+type X1 = [222] extends [never | null | undefined] ? true : false
 
 
 /* _____________ Test Cases _____________ */
