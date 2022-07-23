@@ -3,6 +3,15 @@
  * in the following github issue: https://github.com/Microsoft/TypeScript/issues/12215
  */
 
+ export type Primitive =
+ | string
+ | number
+ | bigint
+ | boolean
+ | symbol
+ | null
+ | undefined;
+
 /**
  * SetIntersection (same as Extract)
  * @desc Set intersection of given union types `A` and `B`
@@ -265,3 +274,205 @@ export type Diff<T extends Object, U extends Object> = Pick<T, SetDifference<key
  *   type RestProps = Subtract<Props, DefaultProps>;
  */
 export type Subtract<T extends T1, T1 extends object> = Pick<T, SetComplement<keyof T, keyof T1>>
+
+/**
+ * Overwrite
+ * @desc From `U` overwrite properties to `T`
+ * @example
+ *   type Props = { name: string; age: number; visible: boolean };
+ *   type NewProps = { age: string; other: string };
+ *
+ *   // Expect: { name: string; age: string; visible: boolean; }
+ *   type ReplacedProps = Overwrite<Props, NewProps>;
+ */
+export type Overwrite<T extends Object, U extends Object> = {
+  [K in keyof T]: K extends SetIntersection<keyof T, keyof U> ? U[K] : T[K]
+}
+
+/**
+ * Assign
+ * @desc From `U` assign properties to `T` (just like object assign)
+ * @example
+ *   type Props = { name: string; age: number; visible: boolean };
+ *   type NewProps = { age: string; other: string };
+ *
+ *   // Expect: { name: string; age: number; visible: boolean; other: string; }
+ *   type ExtendedProps = Assign<Props, NewProps>;
+ */
+export type Assign<T extends Object, U extends Object> = T & Pick<U, SetDifference<keyof U, keyof T>> extends infer R
+? Pick<R, keyof R>
+: never
+
+/**
+ * Exact
+ * @desc Create branded object type for exact type matching
+ */
+ export type Exact<A extends object> = A & { __brand: keyof A };
+
+ /**
+ * Unionize
+ * @desc Disjoin object to form union of objects, each with single property
+ * @example
+ *   type Props = { name: string; age: number; visible: boolean };
+ *
+ *   // Expect: { name: string; } | { age: number; } | { visible: boolean; }
+ *   type UnionizedType = Unionize<Props>;
+ */
+export type Unionize<T extends Object> = {
+  [K in keyof T]: { [U in K]: T[U]}
+}[keyof T]
+
+/**
+ * PromiseType
+ * @desc Obtain Promise resolve type
+ * @example
+ *   // Expect: string;
+ *   type Response = PromiseType<Promise<string>>;
+ */
+export type PromiseType<T extends Promise<any>> = T extends Promise<infer U> ? U : never 
+
+
+/**
+ * DeepReadonly
+ * @desc Readonly that works for deeply nested structure
+ * @example
+ *   // Expect: {
+ *   //   readonly first: {
+ *   //     readonly second: {
+ *   //       readonly name: string;
+ *   //     };
+ *   //   };
+ *   // }
+ *   type NestedProps = {
+ *     first: {
+ *       second: {
+ *         name: string;
+ *       };
+ *     };
+ *   };
+ *   type ReadonlyNestedProps = DeepReadonly<NestedProps>;
+ */
+export type DeepReadonly<T> = T extends (...args: unknown[]) => unknown | Primitive
+? T
+: T extends _DeepReadonlyArray<infer U>
+  ? _DeepReadonlyArray<U>
+  : T extends _DeepReadonlyObject<infer V>
+    ? _DeepReadonlyObject<V>
+    : T
+
+/** @private */
+// tslint:disable-next-line:class-name
+export interface _DeepReadonlyArray<T> extends ReadonlyArray<DeepReadonly<T>> {}
+/** @private */
+export type _DeepReadonlyObject<T> = {
+  readonly [P in keyof T]: DeepReadonly<T[P]>;
+};
+
+/**
+ * DeepRequired
+ * @desc Required that works for deeply nested structure
+ * @example
+ *   // Expect: {
+ *   //   first: {
+ *   //     second: {
+ *   //       name: string;
+ *   //     };
+ *   //   };
+ *   // }
+ *   type NestedProps = {
+ *     first?: {
+ *       second?: {
+ *         name?: string;
+ *       };
+ *     };
+ *   };
+ *   type RequiredNestedProps = DeepRequired<NestedProps>;
+ */
+export type DeepRequired<T> = T extends (...args: unknown[]) => unknown | Primitive
+? T
+: T extends _DeepRequiredArray<infer U>
+  ? _DeepRequiredArray<U>
+  : T extends _DeepRequiredObject<infer V>
+    ? _DeepRequiredObject<V>
+    : T
+
+  /** @private */
+// tslint:disable-next-line:class-name
+export interface _DeepRequiredArray<T> extends Array<DeepRequired<NonUndefined<T>>> {}
+/** @private */
+export type _DeepRequiredObject<T> = {
+  [P in keyof T]-?: DeepRequired<NonUndefined<T[P]>>;
+};
+
+
+/**
+ * ValuesType
+ * @desc Get the union type of all the values in an object, array or array-like type `T`
+ * @example
+ *    type Props = { name: string; age: number; visible: boolean };
+ *    // Expect: string | number | boolean
+ *    type PropsValues = ValuesType<Props>;
+ *
+ *    type NumberArray = number[];
+ *    // Expect: number
+ *    type NumberItems = ValuesType<NumberArray>;
+ *
+ *    type ReadonlySymbolArray = readonly symbol[];
+ *    // Expect: symbol
+ *    type SymbolItems = ValuesType<ReadonlySymbolArray>;
+ *
+ *    type NumberTuple = [1, 2];
+ *    // Expect: 1 | 2
+ *    type NumberUnion = ValuesType<NumberTuple>;
+ *
+ *    type ReadonlyNumberTuple = readonly [1, 2];
+ *    // Expect: 1 | 2
+ *    type AnotherNumberUnion = ValuesType<NumberTuple>;
+ *
+ *    type BinaryArray = Uint8Array;
+ *    // Expect: number
+ *    type BinaryItems = ValuesType<BinaryArray>;
+ */
+export type ValuesType<T> = T extends ReadonlyArray<any>
+  ? T[number]
+  : T extends ArrayLike<any>
+    ? T[number]
+    : T extends object
+      ? T[keyof T]
+      : never
+
+/**
+ * Required
+ * @desc From `T` make a set of properties by key `K` become required
+ * @example
+ *    type Props = {
+ *      name?: string;
+ *      age?: number;
+ *      visible?: boolean;
+ *    };
+ *
+ *    // Expect: { name: string; age: number; visible: boolean; }
+ *    type Props = Required<Props>;
+ *
+ *    // Expect: { name?: string; age: number; visible: boolean; }
+ *    type Props = Required<Props, 'age' | 'visible'>;
+ */
+ export type AugmentedRequired<
+ T extends object,
+ K extends keyof T = keyof T
+> = Omit<T, K> & Required<Pick<T, K>>;
+
+/**
+ * UnionToIntersection
+ * @desc Get intersection type given union type `U`
+ * Credit: jcalz
+ * @see https://stackoverflow.com/a/50375286/7381355
+ * @example
+ *   // Expect: { name: string } & { age: number } & { visible: boolean }
+ *   UnionToIntersection<{ name: string } | { age: number } | { visible: boolean }>
+ */
+export type UnionToIntersection<U> = (U extends any
+  ? (k: U) => void
+  : never) extends (k: infer I) => void
+  ? I
+  : never;
